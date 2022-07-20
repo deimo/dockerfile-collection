@@ -1,0 +1,15 @@
+FROM openjdk:11-jre-slim-stretch AS builder
+WORKDIR /root
+COPY . /root
+RUN ./mvnw clean package -Dmaven.test.skip=true
+FROM openjdk:11-jre-slim-stretch
+COPY --from=builder /tmp/target/demo-0.0.1-SNAPSHOT.jar /app/app.jar
+EXPOSE 8080
+ENV profies=dev
+CMD ["java", "-Dspring.profiles.active=${profies}", "-jar", "/app/app.jar"]
+
+
+# RUN WAY:
+docker build -t sb:v1 .
+
+docker run -it -e "profies=stage" -p 8082:8082 sb:v1
